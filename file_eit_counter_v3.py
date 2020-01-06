@@ -2,7 +2,7 @@ MB = 1024 * 1024
 TS_SIZE = 188
 SYNC_BYTE = 0x47
 
-in_filename = 'HTS_Frequency_11010_SR_32720_17May19.ts' #input('Input file name : ')
+in_filename = 'TS33_Tech_epgmissing_1912_2.ts'
 #in_filename = 'TS-03_2.ts'
 out_filename = in_filename + 'EIT_count_result.txt'
 
