@@ -1,6 +1,3 @@
-import time
-# in_filename = 'E:/Airtel Capture/11480V_28800_20160823.TRP'
-# out_filename = 'C:/Stream/11480V_28800_20160823_Partial.TRP'
 MB = 1024 * 1024
 TS_SIZE = 188
 SYNC_BYTE = 0x47
@@ -10,6 +7,8 @@ in_PID = input('Input PID : ')
 out_filename = in_filename + '_' + in_PID + '_Partial.trp'
 
 length = 0
+error_count = 0
+recover_failed = 0
 
 with open(in_filename, 'rb') as in_file, open(out_filename, 'wb') as out_file:
 #	while length < MB * TS_SIZE:
@@ -20,9 +19,22 @@ with open(in_filename, 'rb') as in_file, open(out_filename, 'wb') as out_file:
 			break
 		
 		if data[0] != SYNC_BYTE:
-			print('sync byte error')
-			break
+			print('sync byte error at %d' % length)
+			while True:
+				error_count += 1
+				data = in_file.read(1)
+				if data[0] == SYNC_BYTE:
+					error_count = 0
+					data += in_file.read(TS_SIZE-1)
+					break
+				if error_count > TS_SIZE:
+					print('error_count : %d' % error_count)
+					recover_failed = 1
+					break
 			
+			if recover_failed == 1:
+				break
+
 		pid = ((data[1] << 8) + data[2]) & 0x1FFF
 		#print(data[1], data[2], pid)
 		if pid == int(in_PID):
